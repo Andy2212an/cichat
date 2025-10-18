@@ -42,4 +42,30 @@ class AveriaController extends BaseController{
     return $this->response->setJSON($rows);
   }
 
+  public function solucionado(){
+    return view('averias/solucionado');
+  }
+
+  public function listarSolucionados(){
+    $averia = new Averia();
+
+    $this->response->setContentType('application/json');
+    $rows = $averia->where('status', 'S')->orderBy('id', 'DESC')->findAll();
+    
+    return $this->response->setJSON($rows);
+  }
+
+  public function marcarSolucionado($id){
+    $averia = new Averia();
+
+    $this->response->setContentType('application/json');
+    
+    $updated = $averia->update($id, ['status' => 'S']);
+    
+    return $this->response->setJSON([
+      'success' => $updated,
+      'id'      => $id
+    ]);
+  }
+
 }

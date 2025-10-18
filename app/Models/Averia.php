@@ -6,6 +6,6 @@ use CodeIgniter\Model;
 class Averia extends Model{
   protected $table = 'averias';
   protected $primaryKey = 'id';
-  protected $allowedFields = ['cliente', 'problema', 'fechahora'];
+  protected $allowedFields = ['cliente', 'problema', 'fechahora', 'status'];
 
 }

@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Listar</title>
+  <title>Averías Solucionadas</title>
 
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet"
     integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous" />
@@ -17,8 +17,8 @@
 <body>
 
   <main class="container">
-    <h4>Averías por atención</h4>
-    <table class="table table-sm table-striped table-bordered" id="tabla-averias">
+    <h4>Averías Solucionadas</h4>
+    <table class="table table-sm table-striped table-bordered" id="tabla-solucionados">
       <colgroup>
         <col style="width: 10%;">
         <col style="width: 25%;">
@@ -32,7 +32,7 @@
           <th>Cliente</th>
           <th>Problema</th>
           <th>Fecha</th>
-          <th>Acción</th>
+          <th>Estado</th>
         </tr>
       </thead>
       <tbody>
@@ -44,7 +44,7 @@
   <script>
     document.addEventListener("DOMContentLoaded", () => {
       let conn = null;
-      const cuerpoTabla = document.querySelector('#tabla-averias tbody')
+      const cuerpoTabla = document.querySelector('#tabla-solucionados tbody')
 
       function connet() {
         //1. Objeto conexión
@@ -59,7 +59,7 @@
         conn.onmessage = function (e) {
           const data = JSON.parse(e.data)
           console.log(data)
-          if (data.message === "nuevoregistro" || data.message === "averiaAtendida"){
+          if (data.message === "averiaAtendida"){
             obtenerDatos()
           }
         }
@@ -76,35 +76,8 @@
         }
       }
 
-      function sendMessage(message) {
-        if (conn.readyState == WebSocket.OPEN) {
-          const data = {
-            message: message
-          }
-          conn.send(JSON.stringify(data))
-        }
-      }
-
-      async function marcarComoSolucionado(id) {
-        if (!confirm('¿Marcar esta avería como solucionada?')) {
-          return
-        }
-
-        const response = await fetch(`<?= base_url() ?>public/api/averias/marcar-solucionado/${id}`, {
-          method: 'post'
-        })
-        const result = await response.json()
-
-        if (result.success) {
-          sendMessage('averiaAtendida')
-          obtenerDatos()
-        } else {
-          alert('No se pudo marcar como solucionada')
-        }
-      }
-
       async function obtenerDatos() {
-        const response = await fetch(`<?= base_url() ?>public/api/averias/listar`, { method: 'get' })
+        const response = await fetch(`<?= base_url() ?>public/api/averias/solucionados`, { method: 'get' })
         const averias = await response.json()
 
         cuerpoTabla.innerHTML = ''
@@ -118,14 +91,11 @@
             row.insertCell().textContent = averia.problema
             row.insertCell().textContent = averia.fechahora
 
-            const cellAccion = row.insertCell()
-            const btnAtendido = document.createElement('button')
-            btnAtendido.textContent = 'Atendido'
-            btnAtendido.className = 'btn btn-sm btn-success'
-            btnAtendido.onclick = function() {
-              marcarComoSolucionado(averia.id)
-            }
-            cellAccion.appendChild(btnAtendido)
+            const cellEstado = row.insertCell()
+            const badge = document.createElement('span')
+            badge.textContent = 'Solucionado'
+            badge.className = 'badge bg-success'
+            cellEstado.appendChild(badge)
 
           });
         }
